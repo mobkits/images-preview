@@ -1,0 +1,81 @@
+#images-preview {
+  background-color: #000;
+  padding: 0 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  transition: background-color 0.3s linear;
+}
+.preview-dots {
+  position: fixed;
+  bottom: 1em;
+  left: 0;
+  right: 0;
+  height: 10px;
+  text-align: center;
+  z-index: 9999;
+}
+.preview-dots ul{
+  display: table;
+  margin: 0 auto;
+  padding: 0;
+}
+.preview-dots li{
+  float: left;
+  width: 8px;
+  height: 8px;
+  display: table-cell;
+  margin: 0 3px;
+  border-radius: 50%;
+  background-color: rgba(255,255,255,0.3);
+}
+.preview-dots li.active{
+  background-color: #fff;
+}
+#images-preview > div {
+  position: relative;
+  float: left;
+  height: 100%;
+}
+#images-preview .wrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 400px;
+  top: 50%;
+  margin-top: -200px;
+  background-size: cover;
+}
+#images-preview .mask {
+  background-size: contain;
+  position: absolute;
+  z-index: 9999;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+#images-preview .mask::before {
+  position: absolute;
+  content: '';
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.3);
+}
+#images-preview .spin {
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -16px;
+  margin-left: -16px;
+}
+#images-preview .image {
+  width: 100%;
+  height: auto;
+}
