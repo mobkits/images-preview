@@ -1,4 +1,3 @@
-require('./style.css')
 import radio from 'radio-component'
 import query  from 'query'
 import event from 'event'

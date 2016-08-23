@@ -1,4 +1,5 @@
 require('./style.css')
+require('../src/style.css')
 import ImagesPreivew from '../src/index'
 
 let imgs = document.querySelectorAll('img')
