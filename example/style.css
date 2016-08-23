@@ -43,10 +43,11 @@ body {
   font-family: Microsoft YaHei,helvetica,tahoma,arial,SimSun;
   line-height: 1.42857143;
   color: #333;
+  padding: 20px;
   -webkit-touch-callout: none;
 }
 p > img {
-  width: 300px;
+  width: 100%;
   display: block;
   margin: 0 auto;
   height: auto;

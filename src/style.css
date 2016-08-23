@@ -1,13 +1,21 @@
 #images-preview {
-  background-color: #000;
+  background-color: rgba(0,0,0,0);
   padding: 0 20px;
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   transition: background-color 0.3s linear;
+  z-index: 99;
 }
-.preview-dots {
+.imgs-preview-holder {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: fixed;
+  z-index: 9999;
+}
+.imgs-preview-dots {
   position: fixed;
   bottom: 1em;
   left: 0;
@@ -16,27 +24,28 @@
   text-align: center;
   z-index: 9999;
 }
-.preview-dots ul{
+.imgs-preview-dots ul{
   display: table;
   margin: 0 auto;
   padding: 0;
 }
-.preview-dots li{
+.imgs-preview-dots li{
   float: left;
   width: 8px;
   height: 8px;
   display: table-cell;
-  margin: 0 3px;
+  margin: 0 4px;
   border-radius: 50%;
   background-color: rgba(255,255,255,0.3);
 }
-.preview-dots li.active{
+.imgs-preview-dots li.active{
   background-color: #fff;
 }
 #images-preview > div {
   position: relative;
   float: left;
   height: 100%;
+  padding: 0 5px;
 }
 #images-preview .wrapper {
   position: absolute;
@@ -49,8 +58,8 @@
 }
 #images-preview .mask {
   background-size: contain;
-  position: absolute;
-  z-index: 9999;
+  background-repeat: no-repeat;
+  background-position: center;
   position: absolute;
   left: 0;
   right: 0;
@@ -76,6 +85,7 @@
   margin-left: -16px;
 }
 #images-preview .image {
+  display: none;
   width: 100%;
   height: auto;
 }
