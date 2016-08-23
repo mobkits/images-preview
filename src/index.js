@@ -30,6 +30,7 @@ class ImagesPreview extends Emitter {
     this.imgs = Array.prototype.slice.call(imgs)
     this._ontap = tap(this.ontap.bind(this))
     this.status = []
+    this.loaded = new Set()
     if (opts.bind !== false) event.bind(document, 'touchstart', this._ontap)
   }
   /**
@@ -72,16 +73,22 @@ class ImagesPreview extends Emitter {
       let wrapper = document.createElement('div')
       let src = this.imgs[i].src
       wrapper.className = 'wrapper'
-      wrapper.appendChild(domify(`
-      <div class="mask" style="background-image:url('${src}')">
-      </div>`))
-      let rect = this.imgs[i].getBoundingClientRect()
-      assign(wrapper.style, {
-        width: `${rect.width - 10}px`,
-        height: `${rect.height - (10*rect.height/rect.width)}px`,
-        left: `${(vw - (rect.width - 10))/2}px`,
-        marginTop: `-${rect.height/2}px`
-      })
+      if (this.loaded.has(i)) {
+        let img = this.createImage(wrapper, src)
+        img.style.display = 'block'
+        this.positionWrapper(wrapper, img)
+      } else {
+        wrapper.appendChild(domify(`
+        <div class="mask" style="background-image:url('${src}')">
+        </div>`))
+        let rect = this.imgs[i].getBoundingClientRect()
+        assign(wrapper.style, {
+          width: `${rect.width - 10}px`,
+          height: `${rect.height - (10*rect.height/rect.width)}px`,
+          left: `${(vw - (rect.width - 10))/2}px`,
+          marginTop: `-${rect.height/2}px`
+        })
+      }
       el.appendChild(wrapper)
       fragment.appendChild(el)
     }
@@ -102,14 +109,14 @@ class ImagesPreview extends Emitter {
     let state = this.status[idx]
     let wrapper = this.container.querySelectorAll('.wrapper')[idx]
     radio(this.dots.querySelectorAll('li')[idx])
+    let tx = idx*vw
+    this.setTransform(- tx - 20)
     // not loaded
     if (!state) {
-      let tx = idx*vw
-      this.setTransform(- tx - 20)
       this.status[idx] = 'loading'
-      let image = document.createElement('img')
-      image.className = 'image'
       if (animate) {
+        let image = query('.image', wrapper)
+        if (image) image.style.display = 'none'
         let holder = this.holder = document.createElement('div')
         holder.className = 'imgs-preview-holder'
         let src = img.src
@@ -122,11 +129,11 @@ class ImagesPreview extends Emitter {
           height: `${rect.height}px`
         })
         document.body.appendChild(holder)
-      } else {
-        image.style.display = 'block'
       }
-      image.src = this.opts.convert(img.src)
-      wrapper.appendChild(image)
+
+      let image = this.createImage(wrapper, img.src)
+      if (!animate) image.style.display = 'block'
+
       let pz = new PinchZoom(wrapper, {
         padding: 5,
         tapreset: true,
@@ -159,8 +166,8 @@ class ImagesPreview extends Emitter {
       })
       this.zooms.push(pz)
       pz.draggable = false
-
       this.loadImage(image, wrapper).then(() => {
+        this.loaded.add(idx)
         pz.draggable = true
       })
     }
@@ -173,18 +180,10 @@ class ImagesPreview extends Emitter {
    * @param {Element} wrapper
    */
   loadImage(image, wrapper) {
-    let vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
     if (image.complete) {
-      let dims = imgDimension(image)
-      let h = (vw - 10)*dims.height/dims.width
       let mask = query('.mask', wrapper)
       if (mask) wrapper.removeChild(mask)
-      assign(wrapper.style, {
-        left: '5px',
-        width: `${vw - 10}px`,
-        height: `${h}px`,
-        marginTop: `-${h/2}px`
-      })
+      this.positionWrapper(wrapper, image)
       return this.positionHolder(wrapper, image.src).then(() => {
         image.style.display = 'block'
       })
@@ -199,28 +198,40 @@ class ImagesPreview extends Emitter {
           duration: 1000,
           width: 4
         })
+        let self = this
         return new Promise((resolve, reject) => {
           function onload() {
             stop()
-            wrapper.removeChild(mask)
-            let dims = imgDimension(image)
-            let h = (vw - 10)*dims.height/dims.width
-            assign(wrapper.style, {
-              left: '5px',
-              width: `${vw - 10}px`,
-              height: `${h}px`,
-              marginTop: `-${h/2}px`
-            })
-            resolve(dims)
+            if (mask.parentNode) wrapper.removeChild(mask)
+            self.positionWrapper(wrapper, image)
+            resolve()
           }
           if (image.complete) return onload()
           image.onload = onload
-          image.onerror = (e) => {
-            reject(e)
-          }
+          image.onerror = reject
         })
       })
     }
+  }
+  positionWrapper(wrapper, image) {
+    let vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    let dims = imgDimension(image)
+    let h = (vw - 10)*dims.height/dims.width
+    assign(wrapper.style, {
+      left: '5px',
+      width: `${vw - 10}px`,
+      height: `${h}px`,
+      marginTop: `-${h/2}px`
+    })
+  }
+  createImage(wrapper, src) {
+    let img = query('.image', wrapper)
+    if (img) return img
+    img = document.createElement('img')
+    img.className = 'image'
+    img.src = this.opts.convert(src)
+    wrapper.appendChild(img)
+    return img
   }
   /**
    * Set translateX of container
