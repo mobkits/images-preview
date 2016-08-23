@@ -9,15 +9,27 @@ Visit [demo](https://chemzqm.github.io/images-preview/) with your phone
 
 ![](http://www.jiangwoo.com/qrcode?url=https%3A%2F%2Fchemzqm.github.io%2Fimages-preview%2F)
 
+## Installation
+
+    npm install images-preview -S
+
+Or use standalone file [preview.js](https://github.com/chemzqm/images-preview/blob/master/preview.js)
+
 ## Usage
 
 Include [style.css](https://raw.githubusercontent.com/chemzqm/images-preview/master/src/style.css) to your page.
+
+For webpack user:
 
 ``` js
 var ImagePreview = require("image-preview")
 var imgs = document.querySelectorAll('img')
 new ImagePreview(imgs)
 ```
+
+For standalone file user
+
+use `window.ImagePreview` instead.
 
 ## API
 
