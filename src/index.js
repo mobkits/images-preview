@@ -30,7 +30,7 @@ class ImagesPreview extends Emitter {
     this.imgs = Array.prototype.slice.call(imgs)
     this._ontap = tap(this.ontap.bind(this))
     this.status = []
-    this.loaded = new Set()
+    this.loaded = []
     if (opts.bind !== false) event.bind(document, 'touchstart', this._ontap)
   }
   /**
@@ -73,7 +73,7 @@ class ImagesPreview extends Emitter {
       let wrapper = document.createElement('div')
       let src = this.imgs[i].src
       wrapper.className = 'wrapper'
-      if (this.loaded.has(i)) {
+      if (this.loaded.indexOf(i) !== -1) {
         let img = this.createImage(wrapper, src)
         img.style.display = 'block'
         this.positionWrapper(wrapper, img)
@@ -167,7 +167,7 @@ class ImagesPreview extends Emitter {
       this.zooms.push(pz)
       pz.draggable = false
       this.loadImage(image, wrapper).then(() => {
-        this.loaded.add(idx)
+        this.loaded.push(idx)
         pz.draggable = true
       })
     }
