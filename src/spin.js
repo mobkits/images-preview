@@ -28,8 +28,8 @@ function torgb(hex) {
 export default function (node, opts) {
   opts = opts || []
   let ctx = createCtx(node)
-  let h = node.clientHeight
-  let w = node.clientWidth
+  let h = node.clientHeight || 32
+  let w = node.clientWidth || 32
   let duration = opts.duration || 1000
   let color = opts.color || '#ffffff'
   let rgb = torgb(color)

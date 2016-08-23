@@ -55,9 +55,6 @@ class ImagesPreview extends Emitter {
   show() {
     let div = this.container = document.createElement('div')
     div.id = 'images-preview'
-    setTimeout(() => {
-      div.style.backgroundColor = 'rgba(0,0,0,1)'
-    }, 100)
     let vw = Math.max(doc.documentElement.clientWidth, window.innerWidth || 0)
     div.style.width = (vw*this.imgs.length + 40) + 'px'
     this.setTransform(-20)
@@ -117,6 +114,8 @@ class ImagesPreview extends Emitter {
       if (animate) {
         let image = query('.image', wrapper)
         if (image) image.style.display = 'none'
+        let mask = query('.mask', wrapper)
+        if (mask) mask.style.visibility = 'hidden'
         let holder = this.holder = document.createElement('div')
         holder.className = 'imgs-preview-holder'
         let src = img.src
@@ -169,6 +168,7 @@ class ImagesPreview extends Emitter {
       this.loadImage(image, wrapper).then(() => {
         this.loaded.push(idx)
         pz.draggable = true
+      }, () => {
       })
     }
   }
@@ -184,13 +184,14 @@ class ImagesPreview extends Emitter {
       let mask = query('.mask', wrapper)
       if (mask) wrapper.removeChild(mask)
       this.positionWrapper(wrapper, image)
-      return this.positionHolder(wrapper, image.src).then(() => {
+      return this.positionHolder(wrapper, image.src, false).then(() => {
         image.style.display = 'block'
       })
     } else {
       return this.positionHolder(wrapper).then(() => {
         image.style.display = 'block'
         let mask = query('.mask', wrapper)
+        mask.style.visibility = 'visible'
         let spinEl = domify(`<div class="spin"></div>`)
         mask.appendChild(spinEl)
         let stop = spin(spinEl, {
@@ -208,7 +209,11 @@ class ImagesPreview extends Emitter {
           }
           if (image.complete) return onload()
           image.onload = onload
-          image.onerror = reject
+          image.onerror = e => {
+            stop()
+            if (mask.parentNode) wrapper.removeChild(mask)
+            reject(e)
+          }
         })
       })
     }
@@ -295,7 +300,7 @@ class ImagesPreview extends Emitter {
    * @param {String} src optional new src
    * @returns {undefined}
    */
-  positionHolder(wrapper, src) {
+  positionHolder(wrapper, src, opacity = true) {
     let el = this.holder
     if (!el) return Promise.resolve(null)
     if (src) el.style.backgroundImage = `url('${src}')`
@@ -305,25 +310,26 @@ class ImagesPreview extends Emitter {
       height: parseInt(el.style.height),
       left: parseInt(el.style.left),
       top: parseInt(el.style.top),
-      opacity: 0
+      opacity: 0.3
     })
-    .ease('linear')
+    .ease('out-cube')
     .to({
       width: parseInt(rect.width),
       height: parseInt(rect.height),
       left: parseInt(rect.left),
       top: parseInt(rect.top),
-      opacity: 0.6
+      opacity: 1
     })
-    .duration(200)
+    .duration(300)
 
     tween.update(function(o) {
+      let n = opacity ? o.opacity : 1
       assign(el.style, {
         width: `${o.width}px`,
         height: `${o.height}px`,
         left: `${o.left}px`,
         top: `${o.top}px`,
-        opacity: o.opacity
+        opacity: n
       })
     })
 
@@ -360,7 +366,7 @@ class ImagesPreview extends Emitter {
     this.container.style.backgroundColor = 'rgba(0,0,0,0)'
     setTimeout(() => {
       document.body.removeChild(this.container)
-    }, 300)
+    }, 100)
   }
   /**
    * unbind tap event
