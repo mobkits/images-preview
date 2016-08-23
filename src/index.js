@@ -49,7 +49,7 @@ class ImagesPreview extends Emitter {
   /**
    * Show container
    *
-   * @private
+   * @public
    */
   show() {
     let div = this.container = document.createElement('div')
@@ -98,6 +98,7 @@ class ImagesPreview extends Emitter {
    */
   active(img, idx, animate = false) {
     let vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    if (idx == null) idx = this.imgs.indexOf(img)
     let state = this.status[idx]
     let wrapper = this.container.querySelectorAll('.wrapper')[idx]
     radio(this.dots.querySelectorAll('li')[idx])

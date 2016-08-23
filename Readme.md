@@ -16,6 +16,33 @@ var imgs = document.querySelectorAll('img')
 new ImagePreview(imgs)
 ```
 
+## API
+
+### ImagePreview(imgs, [option])
+
+Constructor for ImagePreview
+
+* `imgs` is original images collection.
+* `option.convert` used to return orignal image url from compressed image url
+* `option.bind` not bind tap event when `false`
+
+### show()
+### hide()
+
+Show/hide container.
+
+### .active(img, [idx], [animate])
+
+Active a specfic image
+
+* `img` compressed image element.
+* `idx` index of `img` in image list (allows active image from img outside initialized images).
+* `animate` use animation if true.
+
+### .unbind()
+
+Unbind tap event.
+
 ## LICENSE
 
 Copyright 2016 chemzqm@gmail.com
