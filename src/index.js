@@ -211,7 +211,6 @@ class ImagesPreview extends Emitter {
           image.onload = onload
           image.onerror = e => {
             stop()
-            if (mask.parentNode) wrapper.removeChild(mask)
             reject(e)
           }
         })
@@ -304,20 +303,19 @@ class ImagesPreview extends Emitter {
     let el = this.holder
     if (!el) return Promise.resolve(null)
     if (src) el.style.backgroundImage = `url('${src}')`
-    let rect = wrapper.getBoundingClientRect()
     let tween = Tween({
-      width: parseInt(el.style.width),
-      height: parseInt(el.style.height),
-      left: parseInt(el.style.left),
-      top: parseInt(el.style.top),
+      width: parseInt(el.style.width, 10),
+      height: parseInt(el.style.height, 10),
+      left: parseInt(el.style.left, 10),
+      top: parseInt(el.style.top, 10),
       opacity: 0.3
     })
     .ease('out-cube')
     .to({
-      width: parseInt(rect.width),
-      height: parseInt(rect.height),
-      left: parseInt(rect.left),
-      top: parseInt(rect.top),
+      width: parseInt(wrapper.style.width, 10),
+      height: parseInt(wrapper.style.height, 10),
+      left: parseInt(wrapper.style.left, 10),
+      top: this.container.clientHeight/2 + parseInt(wrapper.style.marginTop, 10),
       opacity: 1
     })
     .duration(300)
