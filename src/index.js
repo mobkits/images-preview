@@ -14,14 +14,30 @@ import {has3d, transform} from 'prop-detect'
 const doc = document
 
 class ImagesPreview extends Emitter {
-  constructor(imgs, opts) {
+  /**
+   * Constructor
+   *
+   * @public
+   * @param {Array|DomCollection} imgs
+   * @param {Object} opts
+   */
+  constructor(imgs, opts = {}) {
     super()
     this.opts = opts
+    opts.convert = opts.convert || function src() {
+      return src
+    }
     this.imgs = Array.prototype.slice.call(imgs)
     this._ontap = tap(this.ontap.bind(this))
     this.status = []
-    event.bind(document, 'touchstart', this._ontap)
+    if (opts.bind !== false) event.bind(document, 'touchstart', this._ontap)
   }
+  /**
+   * ontap event handler
+   *
+   * @private
+   * @param  {Event}  e
+   */
   ontap(e) {
     let el = e.target
     let idx = this.imgs.indexOf(el)
@@ -30,6 +46,11 @@ class ImagesPreview extends Emitter {
       this.active(el, idx, true)
     }
   }
+  /**
+   * Show container
+   *
+   * @private
+   */
   show() {
     let div = this.container = document.createElement('div')
     div.id = 'images-preview'
@@ -67,6 +88,14 @@ class ImagesPreview extends Emitter {
     div.appendChild(fragment)
     this.zooms = []
   }
+  /**
+   * Active a specfic image
+   *
+   * @public
+   * @param {Element} img
+   * @param {Number} idx
+   * @param {Boolean} animate = false
+   */
   active(img, idx, animate = false) {
     let vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
     let state = this.status[idx]
@@ -95,10 +124,7 @@ class ImagesPreview extends Emitter {
       } else {
         image.style.display = 'block'
       }
-      let convert = this.opts.convert || function (src) {
-        return src
-      }
-      image.src = convert(img.src)
+      image.src = this.opts.convert(img.src)
       wrapper.appendChild(image)
       let pz = new PinchZoom(wrapper, {
         padding: 5,
@@ -138,6 +164,13 @@ class ImagesPreview extends Emitter {
       })
     }
   }
+  /**
+   * Load image inside wrapper
+   *
+   * @private
+   * @param {Element} image
+   * @param {Element} wrapper
+   */
   loadImage(image, wrapper) {
     let vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
     if (image.complete) {
@@ -188,6 +221,12 @@ class ImagesPreview extends Emitter {
       })
     }
   }
+  /**
+   * Set translateX of container
+   *
+   * @private
+   * @param {Number} x
+   */
   setTransform(x) {
     let el = this.container
     this.tx = x
@@ -197,6 +236,15 @@ class ImagesPreview extends Emitter {
       el.style[transform] = `translate(${x}px)`
     }
   }
+  /**
+   * Animate container for active image
+   *
+   * @private
+   * @param {Number} x
+   * @param {Number} duration = 200
+   * @param {String} ease = 'out-circ'
+   * @returns {Promise}
+   */
   animate(x, duration = 200, ease = 'out-circ') {
     if (x == this.tx) return Promise.resolve(null)
     this.animating = true
@@ -227,6 +275,14 @@ class ImagesPreview extends Emitter {
     animate()
     return promise
   }
+  /**
+   * Animate holder to match wrapper
+   *
+   * @private
+   * @param {Element} wrapper
+   * @param {String} src optional new src
+   * @returns {undefined}
+   */
   positionHolder(wrapper, src) {
     let el = this.holder
     if (!el) return Promise.resolve(null)
@@ -277,6 +333,11 @@ class ImagesPreview extends Emitter {
     animate()
     return promise
   }
+  /**
+   * hide container and unbind events
+   *
+   * @public
+   */
   hide() {
     if (this.dots) document.body.removeChild(this.dots)
     this.zooms.forEach(pz => {
@@ -289,6 +350,11 @@ class ImagesPreview extends Emitter {
       document.body.removeChild(this.container)
     }, 300)
   }
+  /**
+   * unbind tap event
+   *
+   * @public
+   */
   unbind() {
     event.unbind(document, 'touchstart', this._ontap)
   }
