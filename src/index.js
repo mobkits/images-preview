@@ -117,7 +117,7 @@ class ImagesPreview extends Emitter {
         let image = query('.image', wrapper)
         if (image) image.style.display = 'none'
         let mask = query('.mask', wrapper)
-        if (mask) mask.style.visibility = 'hidden'
+        if (mask) mask.style.display = 'none'
         let holder = this.holder = document.createElement('div')
         holder.className = 'imgs-preview-holder'
         let src = img.src
@@ -193,7 +193,7 @@ class ImagesPreview extends Emitter {
       return this.positionHolder(wrapper).then(() => {
         image.style.display = 'block'
         let mask = query('.mask', wrapper)
-        mask.style.visibility = 'visible'
+        mask.style.display = 'block'
         let spinEl = domify(`<div class="spin"></div>`)
         mask.appendChild(spinEl)
         let stop = spin(spinEl, {
