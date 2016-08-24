@@ -79,11 +79,13 @@ class ImagesPreview extends Emitter {
         <div class="mask" style="background-image:url('${src}')">
         </div>`))
         let rect = this.imgs[i].getBoundingClientRect()
+        let w = rect.width || vw/2
+        let h = rect.height || w
         assign(wrapper.style, {
-          width: `${rect.width - 10}px`,
-          height: `${rect.height - (10*rect.height/rect.width)}px`,
-          left: `${(vw - (rect.width - 10))/2}px`,
-          marginTop: `-${rect.height/2}px`
+          width: `${w - 10}px`,
+          height: `${h - (10*h/w)}px`,
+          left: `${(vw - (w - 10))/2}px`,
+          marginTop: `-${h/2}px`
         })
       }
       el.appendChild(wrapper)
