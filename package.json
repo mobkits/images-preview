@@ -1,6 +1,6 @@
 {
   "name": "images-preview",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "preview images on mobile device",
   "main": "dest/index.js",
   "directories": {
