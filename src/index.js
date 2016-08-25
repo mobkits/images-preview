@@ -115,7 +115,7 @@ class ImagesPreview extends Emitter {
   }
 
   ontouchstart(e) {
-    if (this.animating) return
+    if (this.animating) this.tween.stop()
     let wrapper = closest(e.target, '.wrapper')
     if (e.touches.length > 1 || wrapper) return
     let t = e.touches[0]
