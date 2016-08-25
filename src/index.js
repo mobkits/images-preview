@@ -36,7 +36,7 @@ class ImagesPreview extends Emitter {
     }
     this.imgs = Array.prototype.slice.call(imgs)
     this._ontap = tap(this.ontap.bind(this))
-    this._containTap = tap(this.hide.bind(this))
+    this._containerTap = tap(this.hide.bind(this))
     this.status = []
     this.loaded = []
     this.tx = 0
@@ -110,14 +110,14 @@ class ImagesPreview extends Emitter {
     this.events.bind('touchmove')
     this.events.bind('touchend')
     this.docEvents.bind('touchend', 'ontouchend')
-    event.bind(div, 'touchstart', this._containTap)
+    event.bind(div, 'touchstart', this._containerTap)
     event.bind(doc, 'touchmove', preventDefault)
   }
 
   ontouchstart(e) {
+    if (this.animating) return
     let wrapper = closest(e.target, '.wrapper')
     if (e.touches.length > 1 || wrapper) return
-    if (this.animating) this.tween.stop()
     let t = e.touches[0]
     let sx = t.clientX
     this.down = {x: sx, at: Date.now()}
@@ -126,6 +126,7 @@ class ImagesPreview extends Emitter {
     this.move = (e, touch) => {
       let x = tx + touch.clientX - sx
       x = this.limit(x, vw)
+      if (isNaN(x)) return
       this.setTransform(x)
     }
   }
@@ -203,7 +204,7 @@ class ImagesPreview extends Emitter {
         threshold: this.threshold,
         fastThreshold: this.fastThreshold,
         padding: 5,
-        tapreset: true,
+        tapreset: false,
         draggable: true,
         maxScale: 4
       })
@@ -216,11 +217,8 @@ class ImagesPreview extends Emitter {
       //pz.on('tap', this.hide.bind(this))
       pz.on('end', this.restore.bind(this))
       this.zooms.push(pz)
-      pz.draggable = false
       this.loadImage(image, wrapper).then(() => {
-        pz.reset()
         this.loaded.push(idx)
-        pz.draggable = true
       }, () => {
       })
     }
@@ -353,7 +351,6 @@ class ImagesPreview extends Emitter {
   animate(x, duration = 200, ease = 'out-circ') {
     if (x == this.tx) return Promise.resolve(null)
     this.animating = true
-    this.zooms.forEach(pz => pz.animating = true)
     let tween = this.tween = Tween({x: this.tx})
       .ease(ease)
       .to({x: x})
@@ -365,7 +362,6 @@ class ImagesPreview extends Emitter {
     let self = this
     let promise = new Promise(function (resolve) {
       tween.on('end', function(){
-        self.zooms.forEach(pz => pz.animating = false)
         animate = function(){} // eslint-disable-line
         self.animating = false
         resolve()
