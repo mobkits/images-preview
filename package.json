@@ -1,6 +1,6 @@
 {
   "name": "images-preview",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "preview images on mobile device",
   "main": "dest/index.js",
   "directories": {
@@ -67,6 +67,7 @@
   },
   "dependencies": {
     "autoscale-canvas": "0.0.3",
+    "component-closest": "^1.0.1",
     "component-emitter": "^1.2.1",
     "component-event": "^0.1.4",
     "component-events": "^1.0.10",
@@ -76,7 +77,7 @@
     "component-tween": "^1.2.0",
     "domify": "^1.4.0",
     "object-assign": "^4.1.0",
-    "pinch-zoom": "^0.2.11",
+    "pinch-zoom": "^0.3.0",
     "prop-detect": "^1.1.0",
     "radio-component": "0.0.2"
   },
@@ -87,6 +88,7 @@
     "event": "component-event",
     "query": "component-query",
     "raf": "component-raf",
-    "tween": "component-tween"
+    "tween": "component-tween",
+    "closest": "component-closest"
   }
 }

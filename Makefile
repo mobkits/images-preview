@@ -6,6 +6,9 @@ test:
 	@open http://localhost:8080/bundle
 	@gulp webpack:test
 
+standalone:
+	@webpack --config webpack.alone.js
+
 test-karma:
 	@node_modules/.bin/karma start --single-run
 
