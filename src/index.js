@@ -108,6 +108,7 @@ class ImagesPreview extends Emitter {
     this.events.bind('touchmove')
     this.events.bind('touchend')
     this.docEvents.bind('touchend', 'ontouchend')
+    event.bind(doc, 'touchmove', preventDefault)
   }
 
   ontouchstart(e) {
@@ -432,6 +433,7 @@ class ImagesPreview extends Emitter {
    */
   hide() {
     if (this.dots) body.removeChild(this.dots)
+    event.unbind(doc, 'touchmove', preventDefault)
     this.zooms.forEach(pz => {
       pz.unbind()
     })
@@ -506,4 +508,7 @@ function viewportWidth() {
   return Math.max(doc.documentElement.clientWidth, window.innerWidth || 0)
 }
 
+function preventDefault(e) {
+  e.preventDefault()
+}
 export default ImagesPreview
