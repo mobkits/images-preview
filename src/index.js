@@ -7,8 +7,10 @@ import Emitter from 'emitter'
 import tap from 'tap-event'
 import PinchZoom from 'pinch-zoom'
 import assign from 'object-assign'
-import spin from './spin'
 import domify from 'domify'
+import closest from 'closest'
+import events from 'events'
+import spin from './spin'
 import {has3d, transform, transition, transitionend} from 'prop-detect'
 
 const doc = document
@@ -25,6 +27,10 @@ class ImagesPreview extends Emitter {
   constructor(imgs, opts = {}) {
     super()
     this.opts = opts
+    // maximun duration in ms for fast swipe
+    this.threshold = opts.threshold || 200
+    // minimum moved distance for fast swipe
+    this.fastThreshold = opts.fastThreshold || 30
     opts.convert = opts.convert || function src() {
       return src
     }
@@ -56,7 +62,7 @@ class ImagesPreview extends Emitter {
   show() {
     let div = this.container = doc.createElement('div')
     div.id = 'images-preview'
-    let vw = Math.max(doc.documentElement.clientWidth, window.innerWidth || 0)
+    let vw = viewportWidth()
     div.style.width = (vw*this.imgs.length + 40) + 'px'
     this.setTransform(-20)
     body.appendChild(div)
@@ -95,7 +101,52 @@ class ImagesPreview extends Emitter {
     div.appendChild(fragment)
     this.zooms = []
     this.emit('hide')
+
+    this.events = events(div, this)
+    this.docEvents = events(document, this);
+    this.events.bind('touchstart')
+    this.events.bind('touchmove')
+    this.events.bind('touchend')
+    this.docEvents.bind('touchend', 'ontouchend')
   }
+
+  ontouchstart(e) {
+    let wrapper = closest(e.target, '.wrapper')
+    if (e.touches.length > 1 || wrapper) return
+    let t = e.touches[0]
+    let sx = t.clientX
+    this.down = {x: sx, at: Date.now()}
+    let tx = this.tx
+    let vw = viewportWidth()
+    this.move = (e, touch) => {
+      let x = tx + touch.clientX - sx
+      x = this.limit(x, vw)
+      this.setTransform(x)
+    }
+  }
+
+  ontouchmove(e) {
+    if (e.touches.length > 1 || this.move == null) return
+    let touch = e.touches[0]
+    this.move(e, touch)
+  }
+
+  ontouchend(e) {
+    if (this.move == null) return
+    let down = this.down
+    this.move = this.down = null
+    let touch = e.changedTouches[0]
+    let x = touch.clientX
+    let t = Date.now()
+    if ( Math.abs(x - down.x) > this.fastThreshold &&
+        (t - down.at) < this.threshold ) {
+      let dir = down.x > x ? 'left' : 'right'
+      this.onswipe(dir)
+    } else {
+      this.restore()
+    }
+  }
+
   /**
    * Active a specfic image
    *
@@ -105,7 +156,7 @@ class ImagesPreview extends Emitter {
    * @param {Boolean} animate = false
    */
   active(img, idx, animate = false) {
-    let vw = Math.max(doc.documentElement.clientWidth, window.innerWidth || 0)
+    let vw = viewportWidth()
     if (idx == null) idx = this.imgs.indexOf(img)
     let state = this.status[idx]
     this.idx = idx
@@ -140,35 +191,22 @@ class ImagesPreview extends Emitter {
       if (!animate) image.style.display = 'block'
 
       let pz = new PinchZoom(wrapper, {
+        threshold: this.threshold,
+        fastThreshold: this.fastThreshold,
         padding: 5,
         tapreset: true,
         draggable: true,
         maxScale: 4
       })
-      pz.on('swipe', dir => {
-        let i = dir == 'left' ? idx + 1 : idx - 1
-        i = Math.max(0, i)
-        i = Math.min(this.imgs.length - 1 , i)
-        this.animate(- i*vw - 20).then(() => {
-          let img = this.imgs[i]
-          this.active(img, i)
-        })
-      })
+      pz.on('swipe', this.onswipe.bind(this))
       pz.on('move', dx => {
         let x = - 20 - tx - dx
-        x = Math.min(0, x)
-        x = Math.max(-40 - (this.imgs.length - 1)*vw, x)
+        x = this.limit(x, vw)
         this.setTransform(x)
         if (dx != 0) pz.speed = 0
       })
       pz.on('tap', this.hide.bind(this))
-      pz.on('end', () => {
-        let idx = Math.round((- this.tx - 20)/vw)
-        this.animate(- idx*vw - 20).then(() => {
-          let img = this.imgs[idx]
-          this.active(img, idx)
-        })
-      })
+      pz.on('end', this.restore.bind(this))
       this.zooms.push(pz)
       pz.draggable = false
       this.loadImage(image, wrapper).then(() => {
@@ -177,6 +215,36 @@ class ImagesPreview extends Emitter {
       }, () => {
       })
     }
+  }
+  onswipe(dir) {
+    let vw = viewportWidth()
+    let i = dir == 'left' ? this.idx + 1 : this.idx - 1
+    i = Math.max(0, i)
+    i = Math.min(this.imgs.length - 1 , i)
+    this.animate(- i*vw - 20).then(() => {
+      let img = this.imgs[i]
+      if (i == this.idx) return
+      this.active(img, i)
+    })
+  }
+  limit(x, vw) {
+    x = Math.min(0, x)
+    x = Math.max(-40 - (this.imgs.length - 1)*vw, x)
+    return x
+  }
+  /**
+   * Restore container transform to sane position
+   *
+   * @private
+   */
+  restore() {
+    let vw = viewportWidth()
+    let idx = Math.round((- this.tx - 20)/vw)
+    this.animate(- idx*vw - 20).then(() => {
+      if (idx == this.idx) return
+      let img = this.imgs[idx]
+      this.active(img, idx)
+    })
   }
   /**
    * Load image inside wrapper
@@ -430,6 +498,10 @@ function imgDimension(image) {
       width: i.width
     }
   }
+}
+
+function viewportWidth() {
+  return Math.max(doc.documentElement.clientWidth, window.innerWidth || 0)
 }
 
 export default ImagesPreview
