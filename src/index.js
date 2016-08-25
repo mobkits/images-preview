@@ -9,9 +9,10 @@ import PinchZoom from 'pinch-zoom'
 import assign from 'object-assign'
 import spin from './spin'
 import domify from 'domify'
-import {has3d, transform} from 'prop-detect'
+import {has3d, transform, transition, transitionend} from 'prop-detect'
 
 const doc = document
+const body = doc.body
 
 class ImagesPreview extends Emitter {
   /**
@@ -31,7 +32,7 @@ class ImagesPreview extends Emitter {
     this._ontap = tap(this.ontap.bind(this))
     this.status = []
     this.loaded = []
-    if (opts.bind !== false) event.bind(document, 'touchstart', this._ontap)
+    if (opts.bind !== false) event.bind(doc, 'touchstart', this._ontap)
   }
   /**
    * ontap event handler
@@ -53,21 +54,21 @@ class ImagesPreview extends Emitter {
    * @public
    */
   show() {
-    let div = this.container = document.createElement('div')
+    let div = this.container = doc.createElement('div')
     div.id = 'images-preview'
     let vw = Math.max(doc.documentElement.clientWidth, window.innerWidth || 0)
     div.style.width = (vw*this.imgs.length + 40) + 'px'
     this.setTransform(-20)
-    document.body.appendChild(div)
+    body.appendChild(div)
     let dots = this.dots = domify(`<div class="imgs-preview-dots"><ul></ul></div>`)
-    document.body.appendChild(dots)
+    body.appendChild(dots)
     let ul = query('ul', dots)
-    let fragment = document.createDocumentFragment()
+    let fragment = doc.createDocumentFragment()
     for (let i = 0, l = this.imgs.length; i < l; i++) {
-      ul.appendChild(document.createElement('li'))
-      let el = document.createElement('div')
+      ul.appendChild(doc.createElement('li'))
+      let el = doc.createElement('div')
       el.style.width = `${vw}px`
-      let wrapper = document.createElement('div')
+      let wrapper = doc.createElement('div')
       let src = this.imgs[i].src
       wrapper.className = 'wrapper'
       if (this.loaded.indexOf(i) !== -1) {
@@ -93,6 +94,7 @@ class ImagesPreview extends Emitter {
     }
     div.appendChild(fragment)
     this.zooms = []
+    this.emit('hide')
   }
   /**
    * Active a specfic image
@@ -103,10 +105,12 @@ class ImagesPreview extends Emitter {
    * @param {Boolean} animate = false
    */
   active(img, idx, animate = false) {
-    let vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    let vw = Math.max(doc.documentElement.clientWidth, window.innerWidth || 0)
     if (idx == null) idx = this.imgs.indexOf(img)
     let state = this.status[idx]
-    let wrapper = this.container.querySelectorAll('.wrapper')[idx]
+    this.idx = idx
+    this.emit('active', idx)
+    let wrapper =  this.container.querySelectorAll('.wrapper')[idx]
     radio(this.dots.querySelectorAll('li')[idx])
     let tx = idx*vw
     this.setTransform(- tx - 20)
@@ -118,7 +122,7 @@ class ImagesPreview extends Emitter {
         if (image) image.style.display = 'none'
         let mask = query('.mask', wrapper)
         if (mask) mask.style.display = 'none'
-        let holder = this.holder = document.createElement('div')
+        let holder = this.holder = doc.createElement('div')
         holder.className = 'imgs-preview-holder'
         let src = img.src
         holder.style.backgroundImage = `url('${src}')`
@@ -129,7 +133,7 @@ class ImagesPreview extends Emitter {
           width: `${rect.width}px`,
           height: `${rect.height}px`
         })
-        document.body.appendChild(holder)
+        body.appendChild(holder)
       }
 
       let image = this.createImage(wrapper, img.src)
@@ -220,7 +224,7 @@ class ImagesPreview extends Emitter {
     }
   }
   positionWrapper(wrapper, image) {
-    let vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    let vw = Math.max(doc.documentElement.clientWidth, window.innerWidth || 0)
     let dims = imgDimension(image)
     let h = (vw - 10)*dims.height/dims.width
     assign(wrapper.style, {
@@ -233,7 +237,7 @@ class ImagesPreview extends Emitter {
   createImage(wrapper, src) {
     let img = query('.image', wrapper)
     if (img) return img
-    img = document.createElement('img')
+    img = doc.createElement('img')
     img.className = 'image'
     img.src = this.opts.convert(src)
     wrapper.appendChild(img)
@@ -357,15 +361,17 @@ class ImagesPreview extends Emitter {
    * @public
    */
   hide() {
-    if (this.dots) document.body.removeChild(this.dots)
+    if (this.dots) body.removeChild(this.dots)
     this.zooms.forEach(pz => {
       pz.unbind()
     })
+    this.hideImage()
     this.zooms = []
     this.status = []
     this.container.style.backgroundColor = 'rgba(0,0,0,0)'
+    this.emit('hide')
     setTimeout(() => {
-      document.body.removeChild(this.container)
+      body.removeChild(this.container)
     }, 100)
   }
   /**
@@ -374,7 +380,39 @@ class ImagesPreview extends Emitter {
    * @public
    */
   unbind() {
-    event.unbind(document, 'touchstart', this._ontap)
+    event.unbind(doc, 'touchstart', this._ontap)
+  }
+  hideImage() {
+    let idx = this.idx
+    let img = this.imgs[idx]
+    let rect = img.getBoundingClientRect()
+    let wrapper = this.container.querySelectorAll('.wrapper')[idx]
+    if (rect.height == 0 || rect.bottom < 0 || rect.top > this.container.clientHeight) return
+    let holder =  doc.createElement('div')
+    let src = wrapper.querySelector('.image').src
+    holder.className = 'imgs-preview-holder'
+    holder.style.backgroundImage = `url('${src}')`
+    assign(holder.style, {
+      width: parseInt(wrapper.style.width, 10) + 'px',
+      height: parseInt(wrapper.style.height, 10) + 'px',
+      left: parseInt(wrapper.style.left, 10) + 'px',
+      top: (this.container.clientHeight/2 + parseInt(wrapper.style.marginTop, 10)) + 'px',
+      [transition]: 'all 0.25s ease-in'
+    })
+    body.appendChild(holder)
+    event.bind(holder, transitionend, end)
+    setTimeout(() => {
+      assign(holder.style, {
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+        top: `${rect.top}px`,
+        left: `${rect.left}px`
+      })
+    }, 20)
+    function end() {
+      event.unbind(holder, transitionend, end)
+      body.removeChild(holder)
+    }
   }
 }
 

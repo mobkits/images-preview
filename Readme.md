@@ -31,6 +31,12 @@ For standalone file user
 
 use `window.ImagePreview` instead.
 
+## Events
+
+* `show` emitted on container shown.
+* `hide` emitted on container hide.
+* `active` emitted with `index` on active item change.
+
 ## API
 
 ### ImagePreview(imgs, [option])

@@ -40,6 +40,7 @@
     "gulp-live-serve": "^1.0.0",
     "gulp-livereload": "^3.8.1",
     "gulp-util": "^3.0.7",
+    "has-touch": "^1.0.1",
     "html-loader": "^0.4.0",
     "istanbul": "^0.4.0",
     "istanbul-instrumenter-loader": "^0.2.0",
