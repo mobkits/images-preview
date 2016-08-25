@@ -39,6 +39,7 @@ class ImagesPreview extends Emitter {
     this._containTap = tap(this.hide.bind(this))
     this.status = []
     this.loaded = []
+    this.tx = 0
     if (opts.bind !== false) event.bind(doc, 'touchstart', this._ontap)
   }
   /**
@@ -87,13 +88,12 @@ class ImagesPreview extends Emitter {
         <div class="mask" style="background-image:url('${src}')">
         </div>`))
         let rect = this.imgs[i].getBoundingClientRect()
-        let w = Math.min(vw, rect.width) || vw/2
-        let h = rect.height || w
-        let top = Math.min(div.clientHeight - 10, rect.height || w)/2
+        let h = rect.height || vw
+        let top = Math.min(div.clientHeight - 10, h)/2
         assign(wrapper.style, {
-          width: `${w - 10}px`,
-          height: `${h - (10*h/w)}px`,
-          left: `${(vw - (w - 10))/2}px`,
+          width: `${vw - 10}px`,
+          height: `${h}px`,
+          left: '5px',
           marginTop: `-${top}px`
         })
       }
@@ -117,6 +117,7 @@ class ImagesPreview extends Emitter {
   ontouchstart(e) {
     let wrapper = closest(e.target, '.wrapper')
     if (e.touches.length > 1 || wrapper) return
+    if (this.animating) this.tween.stop()
     let t = e.touches[0]
     let sx = t.clientX
     this.down = {x: sx, at: Date.now()}
@@ -139,6 +140,7 @@ class ImagesPreview extends Emitter {
 
   ontouchend(e) {
     if (this.move == null) return
+    if (this.animating) this.tween.stop()
     let down = this.down
     this.move = this.down = null
     let touch = e.changedTouches[0]
