@@ -216,6 +216,7 @@ class ImagesPreview extends Emitter {
       this.zooms.push(pz)
       pz.draggable = false
       this.loadImage(image, wrapper).then(() => {
+        pz.reset()
         this.loaded.push(idx)
         pz.draggable = true
       }, () => {
