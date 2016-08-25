@@ -208,7 +208,6 @@ class ImagesPreview extends Emitter {
         let x = - 20 - tx - dx
         x = this.limit(x, vw)
         this.setTransform(x)
-        if (dx != 0) pz.speed = 0
       })
       //pz.on('tap', this.hide.bind(this))
       pz.on('end', this.restore.bind(this))
