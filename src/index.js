@@ -87,13 +87,14 @@ class ImagesPreview extends Emitter {
         <div class="mask" style="background-image:url('${src}')">
         </div>`))
         let rect = this.imgs[i].getBoundingClientRect()
-        let w = rect.width || vw/2
+        let w = Math.min(vw, rect.width) || vw/2
         let h = rect.height || w
+        let top = Math.min(div.clientHeight - 10, rect.height || w)/2
         assign(wrapper.style, {
           width: `${w - 10}px`,
           height: `${h - (10*h/w)}px`,
           left: `${(vw - (w - 10))/2}px`,
-          marginTop: `-${h/2}px`
+          marginTop: `-${top}px`
         })
       }
       el.appendChild(wrapper)
@@ -161,13 +162,14 @@ class ImagesPreview extends Emitter {
    * @param {Boolean} animate = false
    */
   active(img, idx, animate = false) {
-    let vw = viewportWidth()
     if (idx == null) idx = this.imgs.indexOf(img)
+    if (idx < 0 || idx > this.imgs.length - 1) return
+    let vw = viewportWidth()
     let state = this.status[idx]
     this.idx = idx
-    this.emit('active', idx)
     let wrapper =  this.container.querySelectorAll('.wrapper')[idx]
     radio(this.dots.querySelectorAll('li')[idx])
+    this.emit('active', idx)
     let tx = idx*vw
     this.setTransform(- tx - 20)
     // not loaded
@@ -271,7 +273,10 @@ class ImagesPreview extends Emitter {
         let mask = query('.mask', wrapper)
         mask.style.display = 'block'
         let spinEl = domify(`<div class="spin"></div>`)
-        mask.appendChild(spinEl)
+        if (wrapper.clientHeight > this.container.clientHeight) {
+          spinEl.style.top = `${this.container.clientHeight/2}px`
+        }
+        wrapper.appendChild(spinEl)
         let stop = spin(spinEl, {
           color: '#ffffff',
           duration: 1000,
@@ -281,6 +286,7 @@ class ImagesPreview extends Emitter {
         return new Promise((resolve, reject) => {
           function onload() {
             stop()
+            if (spinEl.parentNode) wrapper.removeChild(spinEl)
             if (mask.parentNode) wrapper.removeChild(mask)
             self.positionWrapper(wrapper, image)
             resolve()
@@ -299,11 +305,13 @@ class ImagesPreview extends Emitter {
     let vw = Math.max(doc.documentElement.clientWidth, window.innerWidth || 0)
     let dims = imgDimension(image)
     let h = (vw - 10)*dims.height/dims.width
+    let top = Math.min(this.container.clientHeight - 10, h)/2
+
     assign(wrapper.style, {
       left: '5px',
       width: `${vw - 10}px`,
       height: `${h}px`,
-      marginTop: `-${h/2}px`
+      marginTop: `-${top}px`
     })
   }
   createImage(wrapper, src) {

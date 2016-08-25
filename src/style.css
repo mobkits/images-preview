@@ -7,6 +7,22 @@
   bottom: 0;
   z-index: 99;
 }
+#images-preview::before,
+#images-preview::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-color: #000;
+  height: 5px;
+  content: '';
+  z-index: 99;
+}
+#images-preview::before {
+  top: 0;
+}
+#images-preview::after {
+  bottom: 0;
+}
 .imgs-preview-holder {
   background-size: contain;
   background-repeat: no-repeat;
@@ -64,6 +80,7 @@
   right: 0;
   top: 0;
   bottom: 0;
+  z-index: -1;
 }
 #images-preview .mask::before {
   position: absolute;
@@ -82,6 +99,7 @@
   left: 50%;
   margin-top: -16px;
   margin-left: -16px;
+  z-index: 9999;
 }
 #images-preview .image {
   display: none;
