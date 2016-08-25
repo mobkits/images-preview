@@ -36,6 +36,7 @@ class ImagesPreview extends Emitter {
     }
     this.imgs = Array.prototype.slice.call(imgs)
     this._ontap = tap(this.ontap.bind(this))
+    this._containTap = tap(this.hide.bind(this))
     this.status = []
     this.loaded = []
     if (opts.bind !== false) event.bind(doc, 'touchstart', this._ontap)
@@ -108,6 +109,7 @@ class ImagesPreview extends Emitter {
     this.events.bind('touchmove')
     this.events.bind('touchend')
     this.docEvents.bind('touchend', 'ontouchend')
+    event.bind(div, 'touchstart', this._containTap)
     event.bind(doc, 'touchmove', preventDefault)
   }
 
@@ -208,7 +210,7 @@ class ImagesPreview extends Emitter {
         this.setTransform(x)
         if (dx != 0) pz.speed = 0
       })
-      pz.on('tap', this.hide.bind(this))
+      //pz.on('tap', this.hide.bind(this))
       pz.on('end', this.restore.bind(this))
       this.zooms.push(pz)
       pz.draggable = false
@@ -433,6 +435,7 @@ class ImagesPreview extends Emitter {
    */
   hide() {
     if (this.dots) body.removeChild(this.dots)
+    event.unbind(this.container, 'touchstart', this._containTap)
     event.unbind(doc, 'touchmove', preventDefault)
     this.zooms.forEach(pz => {
       pz.unbind()
@@ -442,9 +445,7 @@ class ImagesPreview extends Emitter {
     this.status = []
     this.container.style.backgroundColor = 'rgba(0,0,0,0)'
     this.emit('hide')
-    setTimeout(() => {
-      body.removeChild(this.container)
-    }, 100)
+    body.removeChild(this.container)
   }
   /**
    * unbind tap event
