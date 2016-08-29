@@ -77,7 +77,7 @@ class ImagesPreview extends Emitter {
       let el = doc.createElement('div')
       el.style.width = `${vw}px`
       let wrapper = doc.createElement('div')
-      let src = this.imgs[i].src
+      let src = this.imgs[i].currentSrc || this.imgs[i].src
       wrapper.className = 'wrapper'
       if (this.loaded.indexOf(i) !== -1) {
         let img = this.createImage(wrapper, src)
@@ -185,7 +185,7 @@ class ImagesPreview extends Emitter {
         if (mask) mask.style.display = 'none'
         let holder = this.holder = doc.createElement('div')
         holder.className = 'imgs-preview-holder'
-        let src = img.src
+        let src = img.currentSrc || img.src
         holder.style.backgroundImage = `url('${src}')`
         let rect = img.getBoundingClientRect()
         assign(holder.style, {
@@ -197,7 +197,7 @@ class ImagesPreview extends Emitter {
         body.appendChild(holder)
       }
 
-      let image = this.createImage(wrapper, img.src)
+      let image = this.createImage(wrapper, img.currentSrc || img.src)
       if (!animate) image.style.display = 'block'
 
       let pz = new PinchZoom(wrapper, {
@@ -265,7 +265,7 @@ class ImagesPreview extends Emitter {
       let mask = query('.mask', wrapper)
       if (mask) wrapper.removeChild(mask)
       this.positionWrapper(wrapper, image)
-      return this.positionHolder(wrapper, image.src, false).then(() => {
+      return this.positionHolder(wrapper, image.currentSrc || image.src, false).then(() => {
         image.style.display = 'block'
       })
     } else {
@@ -468,7 +468,7 @@ class ImagesPreview extends Emitter {
     let wrapper = this.container.querySelectorAll('.wrapper')[idx]
     if (rect.height == 0 || rect.bottom < 0 || rect.top > this.container.clientHeight) return
     let holder =  doc.createElement('div')
-    let src = wrapper.querySelector('.image').src
+    let src = img.currentSrc || img.src
     holder.className = 'imgs-preview-holder'
     holder.style.backgroundImage = `url('${src}')`
     assign(holder.style, {
@@ -503,7 +503,7 @@ function imgDimension(image) {
     }
   } else {
     let i = new Image()
-    i.src = image.src;
+    i.src = image.currentSrc || image.src;
     return {
       height: i.height,
       width: i.width
