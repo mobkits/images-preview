@@ -11,6 +11,10 @@ Visit [demo](https://chemzqm.github.io/images-preview/) with your phone
 
 It's already used in production at [jiangwoo](http://www.jiangwoo.com/products/304)
 
+The standalone file could be ~12kb, if you use webpack and reuse components like
+[tween](https://github.com/component/tween), the increased file size could be
+much smaller.
+
 ## Features
 
 * Swipe, pinchzoom and scroll (when necessary) event support.
