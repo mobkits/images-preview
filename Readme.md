@@ -1,13 +1,20 @@
 # Images-preview
 
-Component for preview image(s) on touch device.
+Images preview component for web pages on touch device.
 
 Consider use [imagebox](https://github.com/chemzqm/imagebox) for browser images
 on desktop browsers.
 
 Visit [demo](https://chemzqm.github.io/images-preview/) with your phone
 
-![](http://www.jiangwoo.com/qrcode?url=https%3A%2F%2Fchemzqm.github.io%2Fimages-preview%2F)
+![](http://7xrnd0.com1.z0.glb.clouddn.com/vora58fa3i)
+
+## Features
+
+* Swipe, pinchzoom and scroll (when necessary) event support.
+* Scale in and out current image with animation.
+* Min & max zoom limitation.
+* Src convert for display original image.
 
 ## Installation
 
@@ -27,7 +34,7 @@ var imgs = document.querySelectorAll('img')
 new ImagePreview(imgs)
 ```
 
-For standalone file user
+For standalone file user:
 
 use `window.ImagePreview` instead.
 
@@ -41,11 +48,13 @@ use `window.ImagePreview` instead.
 
 ### ImagePreview(imgs, [option])
 
-Constructor for ImagePreview
+Constructor for ImagePreview, when tap event is fired on one of `imgs`, a
+preview container is shown for user to swipe and/or pinchzoom.
 
 * `imgs` is original images collection.
-* `option.convert` used to return orignal image url from compressed image url
-* `option.bind` not bind tap event when `false`
+* `option` optional options.
+* `option.convert` a function used to return orignal image url from `currentSrc` of current image.
+* `option.bind` not bind tap event when === `false`
 
 ### show()
 ### hide()
