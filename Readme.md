@@ -18,6 +18,7 @@ much smaller.
 ## Features
 
 * Swipe, pinchzoom and scroll (when necessary) event support.
+* Tap to show and hide.
 * Scale in and out current image with animation.
 * Min & max zoom limitation.
 * Src convert for display original image.
