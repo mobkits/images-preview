@@ -21,7 +21,7 @@ much smaller.
 * Tap to show and hide.
 * Scale in and out current image with animation.
 * Min & max zoom limitation.
-* Src convert for display original image.
+* Src convert and loading effect for display original image.
 
 ## Installation
 
