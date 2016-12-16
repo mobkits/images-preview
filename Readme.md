@@ -36,8 +36,8 @@ Include [style.css](https://raw.githubusercontent.com/chemzqm/images-preview/mas
 For webpack user:
 
 ``` js
-var ImagePreview = require("image-preview")
-var imgs = document.querySelectorAll('img')
+import ImagePreview from 'image-preview'
+let imgs = document.querySelectorAll('img')
 new ImagePreview(imgs)
 ```
 
