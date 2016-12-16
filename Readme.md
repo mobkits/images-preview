@@ -5,7 +5,7 @@ Images preview component for web pages on touch device.
 Consider use [imagebox](https://github.com/chemzqm/imagebox) for browser images
 on desktop browsers.
 
-Visit [demo](https://chemzqm.github.io/images-preview/) with your phone
+Visit [demo](https://mobkits.github.io/images-preview/) with your phone
 
 ![](http://7xrnd0.com1.z0.glb.clouddn.com/vora58fa3i)
 
