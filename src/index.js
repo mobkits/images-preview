@@ -31,7 +31,7 @@ class ImagesPreview extends Emitter {
     this.threshold = opts.threshold || 200
     // minimum moved distance for fast swipe
     this.fastThreshold = opts.fastThreshold || 30
-    opts.convert = opts.convert || function src() {
+    opts.convert = opts.convert || function (src) {
       return src
     }
     this.imgs = Array.prototype.slice.call(imgs)
