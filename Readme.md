@@ -43,7 +43,17 @@ new ImagePreview(imgs)
 
 For standalone file user:
 
-use `window.ImagePreview` instead.
+```js
+// add standalone file to your html
+<script type="text/javascript" src="preview.js"></script>
+// create an instance 
+var ImagesPreview = window.ImagesPreview.default;
+new ImagesPreview(picture, {
+    convert: function(src) {
+      return src;
+    }
+  });
+```
 
 ## Events
 
