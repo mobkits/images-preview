@@ -7,7 +7,7 @@ on desktop browsers.
 
 Visit [demo](https://mobkits.github.io/images-preview/) with your phone
 
-![](http://7xrnd0.com1.z0.glb.clouddn.com/vora58fa3i)
+![](http://7b1fwt.com1.z0.glb.clouddn.com/1497606769.png)
 
 It's already used in production at [jiangwoo](http://www.jiangwoo.com/products/304)
 
