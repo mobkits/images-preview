@@ -9,6 +9,6 @@ if (!touch) alert('Please visit this page with mobile device')
 let imgs = document.querySelectorAll('img')
 new ImagesPreivew(imgs, {
   convert: src => {
-    return src.replace(/-\w+$/, '')
+    return src.replace(/\?\w+$/, '')
   }
 })
