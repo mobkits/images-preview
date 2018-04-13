@@ -47,8 +47,8 @@ body {
   -webkit-touch-callout: none;
 }
 p > img {
-  width: 100%;
+  width: 140px;
+  height: 140px;
   display: block;
   margin: 0 auto;
-  height: auto;
 }
