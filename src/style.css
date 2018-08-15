@@ -61,6 +61,7 @@
   float: left;
   height: 100%;
   padding: 0 5px;
+  box-sizing: border-box;
 }
 #images-preview .wrapper {
   position: absolute;
